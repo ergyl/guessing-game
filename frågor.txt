@@ -1,0 +1,238 @@
+Erik Gylleus, inlämningsuppgift 1
+Siktar på betyg: VG
+
+# När använder man add respektive commit?
+
+"git add <NAME_OF_FILE>" flyttar specificerad katalog/fil till
+staging area, redo för nästa commit. När man skapar nya filer i sitt
+projekt så behöver man tala om för Git att det ska börja spåra (track)
+filen. Alternativt kan man köra "git add ." för att stage:a alla filer
+i projektet, men den behöver man tänka efter innan man använder så man
+inte stage:ar filer som man inte vill lägga till i Git.
+
+"git commit [-m] [COMMIT_MESSAGE]" gör att du comittar de förändringar
+som ligger i staged area för tillfället.  Det underlättar mycket att
+lägga till flaggan -m, då lägger du till ditt commit message på en gång.
+Annars får du upp en text redigerare där du får skriva in ditt commit
+message, vilket tar längre tid och känns jobbigare.
+
+# Vad är pull repektive push?
+
+"git pull" laddar hem nya commits från remote repository o branch till
+din lokala repository. Det hjälper dig hålla din lokala kopia uppdaterad,
+vilket är särskilt viktigt när man är många som jobbar i samma projekt.
+
+"git push" laddar upp (pushar) dina committed changes from ditt lokala
+repository till ditt  remote repository. Det använder man för att se till
+så att remote repository hamnar i fas med ditt lokala repository. Så de
+speglar varandra och så andra utvecklare i projektet får del av dina
+ändringar.
+
+# När använder man log respektive status?
+
+"git log" listar alla tidigare commits (commit history) i projektet.
+Används när du vill se en detaljerad lista över alla tidigare commits.
+
+"git status" använder man för att kolla nuvarande status för projektet.
+Det visar om det finns untracked files (nya filer som inte lagts till i
+staging area) eller om något väntar på att committas. Det är ett väldigt
+hjälpsamt kommando, speciellt om man gjort många ändringar i flera olika
+filer och man vill se alla ändrade (modified), uppdaterade (updated)
+eller raderade (deleted) filer.
+
+# Vad är en Git branch och varför är de viktiga?
+
+När vi börjar med en ny repository så har vi bara en main branch, som
+skapas automatiskt. Vi kan skapa nya branches i vårt projekt som
+"grenar ut" från main branch. Vi ger våra grenar namn så vi enkelt kan
+röra oss mellan olika grenar. De gör det möjligt för oss att testa,
+utveckla nya features, fixa buggar och annat i en isolerad miljö som
+inte påverkar main branch. När vi är färdiga med branchen så kan vi
+välja att skrota den eller merge:a den till en annan branch.
+En annan stor fördel med branches är att det underlättar för flera
+personer att arbeta med olika saker samtidigt. Detta eftersom varje
+person kan ha sin egen branch.
+
+# Sista frågan - exempel på olika sätt att rulla tillbaka koden till
+ett tidigare tillstånd
+
+Enkelt förklarat så kan man säga att Git är ett versionshanteringssystem som
+tar "ögonblicksbilder" över ett filsystem. För att förstå vad som händer när
+vi rullar tillbaka koden till ett tidigare tillstånd så behöver man förstå
+vilka "stages" i Git som filen vandrar igenom. Beroende på vilken "stage"
+den befinner sig i så får vi hantera den på olika sätt om vi vill rulla
+tillbaka. Med ordet "stage" så menar jag "dom tre träden"(the three trees)
+som ett Git repository har:
+
+1.) Working directory. Arbetskatalogen i det lokala filsystemet som är
+kopplat till en Git repository.
+2.) Index/Staging area/Staged snapshot. Där vi lägger till ändringar för
+nästa commit.
+3.) Repository/Commit history. En samling av tidigare commits. 
+
+Här är tre exempel på hur man kan rulla tillbaka koden till ett tidigare
+tillstånd:
+
+1. CHECKOUT/RESTORE
+"git checkout/restore [COMMIT NUMBER] [FILE NAME]" kan användas för att
+snabbt o enkelt återställa (restore) en fil till den version som den var
+vid tillfället för en specifik commit. Restore kommandot ändrar inte
+commit history i ditt projekt.
+
+@Exempel. Först skapar jag en fil README.txt med följande innehåll:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ cat README.txt
+This game is brought to you by Ham Studios.
+Just like this.
+---
+Sedan lägger jag till filen till staging area och comittar den:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git commit -m "added README file"
+[wip-game-version2 537ab53] added README file
+ 1 file changed, 2 insertions(+)
+ create mode 100644 README.txt
+---
+Därefter lägger jag till en ny rad med text i filen README.txt:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ cat README.txt
+This game is brought to you by Ham Studios.
+Just like this.
+New text here.
+---
+Sedan lägger jag till filen i staging area igen och comittar den:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git commit -m "put more text in the README file"
+[wip-game-version2 7f89fd5] put more text in the README file
+ 1 file changed, 1 insertion(+)
+---
+Kommandot "git log --oneline" visar hur min commit history ser ut
+vid den här tidpunkten:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git log --oneline
+7f89fd5 (HEAD -> wip-game-version2) put more text in the README file
+537ab53 added README file
+d0c4478 added some more text to the answer method
+...
+---
+Nu ångrade jag mig. Vill ha tillbaka filen så som den såg ut i förra
+versionen, som jag tycker är mycket bättre. Jag kör då kommandot
+"git checkout [COMMIT] [FILENAME]":
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git checkout 537ab53 README.txt
+Updated 1 path from 9b8d12e
+---
+Kör jag cat README.txt så ser jag att innehållet i filen ser exakt
+ut som det gjorde i tidigare version:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ cat README.txt
+This game is brought to you by Ham Studios.
+Just like this.
+---
+Med "git status" visas nu också att ändringen gjorts i README.txt och
+den ligger i staging area redo för mig att comitta.
+
+2. REVERT
+"git revert <COMMIT>" används för att skapa en ny commit som ångrar (undo)
+alla ändringar som gjorts i den commit som man specificerar. Skapar en ny
+commit i projektet för att spola tillbaka, men ändrar inte existerande
+commit history.
+
+@Exempel. Jag skapar två nya filer (a.txt och b.txt):
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ ls
+Guesser.class  GuessingGame.class  README.txt  b.txt       run_game.sh*
+Guesser.java   GuessingGame.java   a.txt       frågor.txt
+---
+Lägger in lite text i filerna.
+Lägger till filerna till staging area och comittar dem sen.
+Med "git log --oneline" ser mina senaste comitts ut så här:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git log --oneline
+3532b5e (HEAD -> wip-game-version2) new version text in a and b txt files
+97d1def adding a and b txt files
+5894f67 finished README file added
+7f89fd5 put more text in the README file
+537ab53 added README file
+...
+---
+För att ångra ändringarna i a.txt filen som jag gjorde senast så kör jag
+commandot "git checkout [COMMANDO] [FILNAMN]:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git checkout 97d1def a.txt
+Updated 1 path from 05a8c60
+---
+Magiskt! Nu är filen likadan som den var innan min senaste commit.
+
+3. RESET
+"git reset" är bra att använda för att återgå till ett specifikt tillstånd
+som en repository var i vid en viss commit. Bra att använda om man vill
+återställa sitt lokala repository till det tilstånd som ens remote 
+repository med "git reset origin/master". Ett annat exempel är att bara
+återgå till ett specifikt tillstånd som ens lokala repository var i vid
+en viss commit. Kan ändra din commit historik så man behöver tänka efter
+ordentligt med hur man använder reset-kommandot.
+
+@Exempel. Skriver jag "git reset HEAD~1" så säger jag åt Git att göra så staging
+area och commit history spolas tillbaka till det tillstånd som det var i
+vid den commit som var före den som HEAD pekar på just nu.
+
+Först kollar jag hur min command history ser ut med kommandot "git log --oneline":
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git log --oneline
+4d91b54 (HEAD -> wip-game-version2) added a README.txt file
+d0c4478 added some more text to the answer method
+67b121b removed unnecessary comments
+...
+---
+Ovan ser vi att HEAD pekar på min senaste commit 4d91b54 där jag lagt till
+en ny fil.
+
+Sedan kör jag "git reset HEAD~1".
+Med "git status" visas därefter följande output:
+--- 
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git status
+On branch wip-game-version2
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        ".fr\303\245gor.txt.swp"
+        README.txt
+        "fr\303\245gor.txt"
+
+nothing added to commit but untracked files present (use "git add" to track)
+---
+Det som hände här är att jag spolade tillbaka tillståndet till så som det såg ut
+innan min senaste commit. HEAD~1 instruerar att flytta tillbaka till en commit
+före där HEAD pekade. Kommandot ovan tog bort den nya filen från commit history och
+staging area, men lämnade filen oförändrad i min working directory.
+Det är som att sätta ett stort 'X' över sin senaste commit och spola tillbaka till
+tillståndet som var vid den commit som var före den.
+
+Kör jag kommandot "git log --oneline" så finns inte min senaste commit kvar i min
+commit history:
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ git log --oneline
+d0c4478 (HEAD -> wip-game-version2) added some more text to the answer method
+67b121b removed unnecessary comments
+f6ae9fc (origin/main, main) added script to make things more fun
+...
+--- 
+
+Filen README.txt finns dessutom kvar i min working directory när jag kör kommandot "ls":
+---
+legio@LegionX MINGW64 ~/guessingGame (wip-game-version2)
+$ ls
+Guesser.class  Guesser.java  GuessingGame.class  GuessingGame.java  README.txt  frågor.txt  run_game.sh*
+---
